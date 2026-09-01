@@ -55,3 +55,9 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Visual Studio local cache
+.vs/
+
+# Uploaded user documents (runtime data, not source)
+SmartDocs.Web/uploads/
