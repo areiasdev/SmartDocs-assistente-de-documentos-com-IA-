@@ -12,7 +12,10 @@ builder.Services.AddSingleton<InMemoryVectorStore>();                 // guarda 
 builder.Services.AddSingleton<IDocumentService, LocalDocumentService>();
 
 builder.Services.AddHttpClient<IEmbeddingService, OllamaEmbeddingService>(); // typed HttpClient
-builder.Services.AddScoped<DocumentIngestionService>();              // já não Singleton
+builder.Services.AddScoped<DocumentIngestionService>();              // nao faz sentido como Singleton
+
+builder.Services.AddHttpClient<IChatService, OllamaChatService>();
+builder.Services.AddScoped<RagService>();
 
 var app = builder.Build();
 
