@@ -1,7 +1,9 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IDocumentService DocumentService
+@attribute [Authorize]
 @inject DocumentIngestionService Ingestion
 @inject NavigationManager Nav
 @implements IAsyncDisposable
@@ -9,6 +11,11 @@
 <PageTitle>SmartDocs</PageTitle>
 
 <div class="app">
+    <AuthorizeView>
+        <Authorized>Olá, @context.User.Identity?.Name!</Authorized>
+        <NotAuthorized>Por favor inicia sessão.</NotAuthorized>
+    </AuthorizeView>
+
     <header class="hero">
         <h1>SmartDocs</h1>
         <p>Carrega um PDF e faz-lhe perguntas. As respostas são geradas por IA a partir do conteúdo do documento.</p>
