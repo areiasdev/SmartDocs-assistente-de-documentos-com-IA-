@@ -10,9 +10,12 @@ public class AzureOpenAIEmbeddingService : IEmbeddingService
 
     public AzureOpenAIEmbeddingService(IConfiguration configuration)
     {
-        var endpoint = configuration["AzureOpenAI:Endpoint"];
-        var apiKey = configuration["AzureOpenAI:ApiKey"];
-        var deploymentName = configuration["AzureOpenAI:EmbeddingDeployment"];
+        var endpoint = configuration["AzureOpenAI:Endpoint"]
+            ?? throw new InvalidOperationException("AzureOpenAI:Endpoint is not configured.");
+        var apiKey = configuration["AzureOpenAI:ApiKey"]
+            ?? throw new InvalidOperationException("AzureOpenAI:ApiKey is not configured.");
+        var deploymentName = configuration["AzureOpenAI:EmbeddingDeployment"]
+            ?? throw new InvalidOperationException("AzureOpenAI:EmbeddingDeployment is not configured.");
 
         var azure = new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
         _client = azure.GetEmbeddingClient(deploymentName);

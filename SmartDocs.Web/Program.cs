@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddSignalR();
+
 builder.Services.AddSingleton<IPdfTextExtractor, PdfPigTextExtractor>();
 builder.Services.AddSingleton<InMemoryVectorStore>();                 // guarda estado -> singleton
 builder.Services.AddSingleton<IDocumentService, LocalDocumentService>();
@@ -34,5 +36,6 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+app.MapHub<SmartDocs.Web.Hubs.ChatHub>("/hubs/chat");
 
 app.Run();
