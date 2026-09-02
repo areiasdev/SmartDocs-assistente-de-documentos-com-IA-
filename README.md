@@ -4,7 +4,7 @@
 
 SmartDocs is a Retrieval-Augmented Generation (RAG) application built with Blazor and .NET. It was developed as a focused portfolio project to work hands-on across a modern AI-enabled web stack: Blazor components, real-time streaming over SignalR, LLM and embedding integration, semantic search, authentication, persisted multi-turn chat, and clean, provider-agnostic service design.
 
-![SmartDocs chat interface](image.png)
+![SmartDocs chat interface](image-1.png)
 
 > It runs **fully locally** — no cloud account required. The AI provider (LLM + embeddings) runs on [Ollama](https://ollama.com), but every external dependency sits behind an interface, so switching to Azure OpenAI is a one-line change.
 

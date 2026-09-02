@@ -6,6 +6,13 @@ using SmartDocs.Web.Interfaces;
 
 namespace SmartDocs.Web.Services;
 
+/// <summary>
+/// <see cref="IChatService"/> implementation backed by a local Ollama server.
+/// Talks to Ollama's REST API (`/api/chat`) directly over HttpClient — no SDK
+/// dependency — so swapping to a different LLM provider only means adding a
+/// new implementation of <see cref="IChatService"/> and changing the DI
+/// registration in Program.cs.
+/// </summary>
 public class OllamaChatService : IChatService
 {
     private readonly HttpClient _http;
@@ -25,7 +32,7 @@ public class OllamaChatService : IChatService
         {
             model = _model,
             stream = false,
-            ptions = new { temperature = 0.1 },
+            options = new { temperature = 0.1 },
             messages = new[]
             {
                 new { role = "system", content = systemPrompt },
@@ -38,6 +45,13 @@ public class OllamaChatService : IChatService
         return result!.Message.Content;
     }
 
+    /// <summary>
+    /// Streams the reply token-by-token instead of waiting for the full completion.
+    /// Ollama's streaming response is NDJSON (newline-delimited JSON) — one small
+    /// JSON object per line, each carrying a fragment of the answer — rather than
+    /// a single JSON document, so it's parsed line-by-line as it arrives instead
+    /// of buffering the whole HTTP response first.
+    /// </summary>
     public async IAsyncEnumerable<string> StreamAsync(
         IEnumerable<ChatMessage> messages,
         [EnumeratorCancellation] CancellationToken ct = default)
@@ -61,6 +75,10 @@ public class OllamaChatService : IChatService
         await using var stream = await resp.Content.ReadAsStreamAsync(ct);
         using var reader = new StreamReader(stream);
 
+        // Read one NDJSON line at a time and yield its token immediately, so the
+        // caller (RagService -> SignalR ChatHub -> browser) can forward each
+        // token to the UI as soon as it arrives, instead of waiting for the
+        // model to finish the whole answer.
         while (true)
         {
             var line = await reader.ReadLineAsync(ct);
@@ -71,7 +89,7 @@ public class OllamaChatService : IChatService
             if (!string.IsNullOrEmpty(chunk?.Message?.Content))
                 yield return chunk!.Message!.Content;
 
-            if (chunk?.Done == true) break;
+            if (chunk?.Done == true) break; // Ollama's final line marks completion with "done": true
         }
     }
 
