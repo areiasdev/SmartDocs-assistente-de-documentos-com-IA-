@@ -22,8 +22,14 @@
 @code {
     [Parameter, EditorRequired] public Message Message { get; set; } = default!;
 
+    // Desliguei o HTML em bruto (DisableHtml) de propósito — a resposta do
+    // assistente vem de texto extraído de um PDF, que não é confiável. Sem isto,
+    // se o modelo ecoasse HTML literal (de um PDF malicioso, ou de uma tentativa
+    // de prompt injection), isso ia renderizar a sério por causa do MarkupString
+    // aqui em baixo — um XSS. Desligar o HTML não estraga a formatação normal
+    // (negrito, listas, blocos de código, etc.).
     private static readonly MarkdownPipeline Pipeline =
-        new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+        new MarkdownPipelineBuilder().UseAdvancedExtensions().DisableHtml().Build();
 
     private static string RenderMarkdown(string text) => Markdown.ToHtml(text ?? "", Pipeline);
 }

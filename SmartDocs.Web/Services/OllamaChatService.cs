@@ -6,13 +6,10 @@ using SmartDocs.Web.Interfaces;
 
 namespace SmartDocs.Web.Services;
 
-/// <summary>
-/// <see cref="IChatService"/> implementation backed by a local Ollama server.
-/// Talks to Ollama's REST API (`/api/chat`) directly over HttpClient — no SDK
-/// dependency — so swapping to a different LLM provider only means adding a
-/// new implementation of <see cref="IChatService"/> and changing the DI
-/// registration in Program.cs.
-/// </summary>
+// Isto fala diretamente com a API REST do Ollama (/api/chat) via HttpClient, sem
+// nenhum SDK. Fiz assim de propósito: se um dia quiser trocar de provider de LLM
+// só preciso de criar outra classe que implemente IChatService e mudar o registo
+// no DI (Program.cs), o resto do código nem dá por isso.
 public class OllamaChatService : IChatService
 {
     private readonly HttpClient _http;
@@ -45,13 +42,10 @@ public class OllamaChatService : IChatService
         return result!.Message.Content;
     }
 
-    /// <summary>
-    /// Streams the reply token-by-token instead of waiting for the full completion.
-    /// Ollama's streaming response is NDJSON (newline-delimited JSON) — one small
-    /// JSON object per line, each carrying a fragment of the answer — rather than
-    /// a single JSON document, so it's parsed line-by-line as it arrives instead
-    /// of buffering the whole HTTP response first.
-    /// </summary>
+    // Aqui faço streaming da resposta em vez de esperar pelo texto todo de uma vez.
+    // O Ollama devolve NDJSON quando stream=true — um objetinho JSON por linha, cada
+    // um com um pedacinho da resposta — em vez de um único documento JSON. Por isso
+    // vou lendo linha a linha à medida que chega.
     public async IAsyncEnumerable<string> StreamAsync(
         IEnumerable<ChatMessage> messages,
         [EnumeratorCancellation] CancellationToken ct = default)
@@ -75,10 +69,9 @@ public class OllamaChatService : IChatService
         await using var stream = await resp.Content.ReadAsStreamAsync(ct);
         using var reader = new StreamReader(stream);
 
-        // Read one NDJSON line at a time and yield its token immediately, so the
-        // caller (RagService -> SignalR ChatHub -> browser) can forward each
-        // token to the UI as soon as it arrives, instead of waiting for the
-        // model to finish the whole answer.
+        // Vou lendo linha NDJSON a linha NDJSON e devolvendo cada token logo, para
+        // quem chamou isto (RagService -> ChatHub -> browser) conseguir mostrar o
+        // texto a aparecer aos poucos em vez de esperar pela resposta toda.
         while (true)
         {
             var line = await reader.ReadLineAsync(ct);
@@ -89,7 +82,7 @@ public class OllamaChatService : IChatService
             if (!string.IsNullOrEmpty(chunk?.Message?.Content))
                 yield return chunk!.Message!.Content;
 
-            if (chunk?.Done == true) break; // Ollama's final line marks completion with "done": true
+            if (chunk?.Done == true) break; // a última linha do Ollama vem com "done": true, é o fim
         }
     }
 
