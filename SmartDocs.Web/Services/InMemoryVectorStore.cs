@@ -7,7 +7,7 @@ public record IndexedChunk(string DocumentId, string Text, int StartIndex, float
 // preciso agora (um utilizador, poucos documentos); numa app a sério isto seria
 // substituído por uma base de dados vetorial (Azure AI Search, Cosmos DB vector
 // search) mantendo a mesma forma da API. É singleton, por isso perco tudo se
-// reiniciar a app — tenho de voltar a fazer ingest dos documentos.
+// reiniciar a app, tenho de voltar a fazer ingest dos documentos.
 public class InMemoryVectorStore
 {
     private readonly List<IndexedChunk> _chunks = new();
@@ -18,7 +18,7 @@ public class InMemoryVectorStore
     public IReadOnlyList<(IndexedChunk Chunk, float Score)> Search(float[] query, int topK = 4)
         => Rank(_chunks, query, topK);
 
-    // Igual ao Search de cima, mas só dentro de um documento — para uma pergunta
+    // Igual ao Search de cima, mas só dentro de um documento, para uma pergunta
     // sobre um PDF nunca ir buscar pedaços de outro.
     public IReadOnlyList<(IndexedChunk Chunk, float Score)> Search(float[] query, string documentId, int topK = 4)
         => Rank(_chunks.Where(c => c.DocumentId == documentId), query, topK);

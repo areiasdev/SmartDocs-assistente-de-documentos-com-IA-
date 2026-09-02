@@ -43,8 +43,8 @@ public class OllamaChatService : IChatService
     }
 
     // Aqui faço streaming da resposta em vez de esperar pelo texto todo de uma vez.
-    // O Ollama devolve NDJSON quando stream=true — um objetinho JSON por linha, cada
-    // um com um pedacinho da resposta — em vez de um único documento JSON. Por isso
+    // O Ollama devolve NDJSON quando stream=true: um objetinho JSON por linha, cada
+    // um com um pedacinho da resposta, em vez de um único documento JSON. Por isso
     // vou lendo linha a linha à medida que chega.
     public async IAsyncEnumerable<string> StreamAsync(
         IEnumerable<ChatMessage> messages,

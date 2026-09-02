@@ -35,7 +35,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
-// Não tenho nenhum provider de email a sério configurado — o RequireConfirmedAccount
+// Não tenho nenhum provider de email a sério configurado, o RequireConfirmedAccount
 // está a false lá em cima, por isso este sender que não faz nada só serve para o
 // Identity não rebentar no DI (ele pede sempre um IEmailSender), já que não uso
 // reset de password nem confirmação de email aqui.
@@ -45,7 +45,7 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 // Cada coisa externa (extrair PDF, embeddings, chat com o LLM) fica escondida
 // atrás de uma interface, e é só aqui que registo a implementação a sério. O
 // RagService e o DocumentIngestionService só conhecem as interfaces, nunca as
-// classes Ollama/PdfPig diretamente — se um dia trocar para Azure OpenAI ou
+// classes Ollama/PdfPig diretamente, se um dia trocar para Azure OpenAI ou
 // Azure AI Document Intelligence, mudo só a linha do registo aqui, o resto do
 // código nem dá por isso.
 builder.Services.AddSingleton<IPdfTextExtractor, PdfPigTextExtractor>();
@@ -79,16 +79,16 @@ app.MapRazorComponents<App>()
 app.MapHub<SmartDocs.Web.Hubs.ChatHub>("/hubs/chat");
 app.MapAdditionalIdentityEndpoints();
 
-// NOTAS PARA MIM — coisas que dava para melhorar se tivesse mais tempo:
+// NOTAS PARA MIM, coisas que dava para melhorar se tivesse mais tempo:
 // - Rate limiting nos endpoints de upload e chat (app.UseRateLimiter() + policy),
 //   para não deixar ninguém dar spam ao Ollama/à API de embeddings.
 // - Um endpoint de health check (services.AddHealthChecks() + app.MapHealthChecks("/health")),
 //   barato de fazer e normalmente esperado numa app "operational ready".
 // - Logging estruturado com correlation id por pedido, para conseguir seguir um
 //   upload/pergunta específico nos logs de ponta a ponta.
-// - Resolver o [Authorize] do ChatHub (ver nota na classe) — o userId devia vir
+// - Resolver o [Authorize] do ChatHub (ver nota na classe), o userId devia vir
 //   do Context.User autenticado, não de um parâmetro que o cliente manda.
-// - InMemoryVectorStore é só em memória (ver comentário na classe) — passar para
+// - InMemoryVectorStore é só em memória (ver comentário na classe), passar para
 //   uma base de dados vetorial a sério (Azure AI Search / Cosmos DB vector search)
 //   antes de isto ser usado a sério por mais que uma pessoa.
 app.Run();

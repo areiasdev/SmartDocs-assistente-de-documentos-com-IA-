@@ -5,7 +5,7 @@ namespace SmartDocs.Web.Services;
 
 // Isto é o coração do RAG: pego na pergunta, embebo-a, vou buscar os pedaços mais
 // parecidos do documento, meto tudo isso num prompt e mando para o LLM, com
-// streaming. Só depende de interfaces (IEmbeddingService, IChatService) — se um
+// streaming. Só depende de interfaces (IEmbeddingService, IChatService), se um
 // dia trocar o Ollama pelo Azure OpenAI, mudo só o registo no DI, esta classe
 // nem dá por isso.
 public class RagService

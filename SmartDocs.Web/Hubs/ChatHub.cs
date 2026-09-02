@@ -7,7 +7,7 @@ namespace SmartDocs.Web.Hubs;
 
 // Hub de SignalR para o chat com streaming. O Blazor Server já usa SignalR por
 // baixo para o próprio circuito, mas fiz este hub à parte em /hubs/chat de
-// propósito — mostra como se faz um método de streaming num hub, e o endpoint
+// propósito, mostra como se faz um método de streaming num hub, e o endpoint
 // fica reutilizável por qualquer cliente SignalR, não só por esta UI.
 //
 // NOTA PARA MIM: este hub não tem [Authorize], e o userId vem como parâmetro do

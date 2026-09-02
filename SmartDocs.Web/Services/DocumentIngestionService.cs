@@ -30,7 +30,7 @@ public class DocumentIngestionService
     // Extraio, parto em pedaços, embebo e indexo o doc. Se não conseguir tirar
     // texto nenhum do PDF (o caso mais comum é ser uma digitalização/imagem sem
     // camada de texto), rebento logo aqui com um erro claro, antes de sequer
-    // chamar o serviço de embeddings — assim evito que a API de embeddings
+    // chamar o serviço de embeddings, assim evito que a API de embeddings
     // rebente com uma lista vazia e dê um erro confuso lá deles.
     public async Task IngestAsync (Document doc, CancellationToken ct = default)
     {

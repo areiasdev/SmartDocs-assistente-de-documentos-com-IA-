@@ -5,7 +5,7 @@ using SmartDocs.Web.Models;
 namespace SmartDocs.Web.Services;
 
 // Guardo o histórico de conversa por (utilizador, documento) na SQLite via EF Core,
-// para sobreviver a reloads e a reiniciar a app — ao contrário dos embeddings do
+// para sobreviver a reloads e a reiniciar a app, ao contrário dos embeddings do
 // InMemoryVectorStore, que esses recrio sempre que volto a fazer ingest.
 public class ConversationService
 {
