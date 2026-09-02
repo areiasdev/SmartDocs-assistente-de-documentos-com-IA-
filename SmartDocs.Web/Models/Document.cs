@@ -6,6 +6,6 @@ public class Document
     public string PublicId { get; init; } = Guid.NewGuid().ToString();
     public string FileName { get; init; } = string.Empty;
     public long SizeBytes { get; init; }
-    public DateTimeOffset UploadedAt { get; init; } = DateTimeOffset.UtcNow;
+    public DateTime UploadedAt { get; init; } = DateTime.UtcNow;
     public string StoragePath { get; init; } = string.Empty;
 }

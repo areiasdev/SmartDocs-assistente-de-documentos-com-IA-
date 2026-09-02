@@ -1,10 +1,12 @@
 ﻿@page "/"
 @rendermode InteractiveServer
-@using Microsoft.AspNetCore.SignalR.Client
-@using Microsoft.AspNetCore.Components.Authorization
-@inject IDocumentService DocumentService
 @attribute [Authorize]
+@using System.Security.Claims
+@using Microsoft.AspNetCore.SignalR.Client
+@using SmartDocs.Web.Models
+@inject IDocumentService DocumentService
 @inject DocumentIngestionService Ingestion
+@inject ConversationService Conversations
 @inject NavigationManager Nav
 @implements IAsyncDisposable
 
@@ -28,28 +30,42 @@
     </section>
 
     <section class="card @(hasDocs ? "" : "locked")">
-        <span class="step">2 · Perguntar</span>
-        <textarea @bind="question" rows="2" disabled="@(!hasDocs)"
-                  placeholder="O que queres saber sobre o documento?"></textarea>
-        <button @onclick="Ask" disabled="@(isAsking || !hasDocs)">
-            @(isAsking ? "A escrever…" : "Perguntar")
-        </button>
-        @if (!string.IsNullOrEmpty(answer)) { <div class="answer">@answer</div> }
-    </section>
+    <span class="step">2 · Conversar</span>
+
+    <div class="chat">
+        @foreach (var m in _messages)
+        {
+            <div class="bubble @(m.Role == "user" ? "user" : "assistant")">@m.Content</div>
+        }
+    </div>
+
+    <textarea @bind="question" rows="2" disabled="@(!hasDocs)"
+              placeholder="Escreve a tua mensagem…"></textarea>
+    <button @onclick="Ask" disabled="@(isAsking || !hasDocs)">
+        @(isAsking ? "A escrever…" : "Enviar")
+    </button>
+</section>
 </div>
 
 @code {
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+
+    private HubConnection? _hub;
+    private string _userId = "";
+    private List<Message> _messages = new();
+    private string question = "";
+    private bool isAsking;
     private string? uploadStatus;
     private bool hasDocs;
     private const long MaxBytes = 20 * 1024 * 1024;
 
-    private HubConnection? _hub;
-    private string question = "";
-    private string answer = "";
-    private bool isAsking;
-
     protected override async Task OnInitializedAsync()
     {
+        var user = (await AuthState!).User;
+        _userId = user.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var convo = await Conversations.GetOrCreateAsync(_userId);
+        _messages = convo.Messages.OrderBy(m => m.CreatedAt).ToList();
+
         _hub = new HubConnectionBuilder()
             .WithUrl(Nav.ToAbsoluteUri("/hubs/chat"))
             .WithAutomaticReconnect()
@@ -82,11 +98,18 @@
     private async Task Ask()
     {
         if (_hub is null || string.IsNullOrWhiteSpace(question)) return;
-        isAsking = true; answer = "";
-        await foreach (var token in _hub.StreamAsync<string>("StreamAnswer", question))
+        isAsking = true;
+
+        var q = question;
+        question = "";
+        _messages.Add(new Message { Role = "user", Content = q });
+        var reply = new Message { Role = "assistant", Content = "" };
+        _messages.Add(reply);
+
+        await foreach (var token in _hub.StreamAsync<string>("StreamAnswer", q, _userId))
         {
-            answer += token;
-            await InvokeAsync(StateHasChanged);   // stream token a token
+            reply.Content += token;
+            await InvokeAsync(StateHasChanged);
         }
         isAsking = false;
     }

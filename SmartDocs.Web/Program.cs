@@ -45,6 +45,7 @@ builder.Services.AddHttpClient<IEmbeddingService, OllamaEmbeddingService>();
 builder.Services.AddHttpClient<IChatService, OllamaChatService>();
 builder.Services.AddScoped<DocumentIngestionService>();
 builder.Services.AddScoped<RagService>();
+builder.Services.AddScoped<ConversationService>();
 
 var app = builder.Build();
 

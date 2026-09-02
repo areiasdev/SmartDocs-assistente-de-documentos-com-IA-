@@ -39,18 +39,15 @@ public class OllamaChatService : IChatService
     }
 
     public async IAsyncEnumerable<string> StreamAsync(
-    string systemPrompt, string userMessage,
-    [EnumeratorCancellation] CancellationToken ct = default)
+        IEnumerable<ChatMessage> messages,
+        [EnumeratorCancellation] CancellationToken ct = default)
     {
         var request = new
         {
             model = _model,
             stream = true,
-            messages = new[]
-            {
-                new { role = "system", content = systemPrompt },
-                new { role = "user",   content = userMessage }
-            }
+            options = new { temperature = 0.1 },
+            messages = messages.Select(m => new { role = m.Role, content = m.Content }).ToArray()
         };
 
         using var req = new HttpRequestMessage(HttpMethod.Post, "/api/chat")
