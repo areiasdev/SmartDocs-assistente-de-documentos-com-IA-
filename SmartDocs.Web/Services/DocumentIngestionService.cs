@@ -1,3 +1,4 @@
+using SmartDocs.Web.Interfaces;
 using SmartDocs.Web.Models;
 
 namespace SmartDocs.Web.Services;

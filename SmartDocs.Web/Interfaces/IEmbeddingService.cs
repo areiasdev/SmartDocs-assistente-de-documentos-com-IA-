@@ -1,4 +1,4 @@
-namespace SmartDocs.Web.Services;
+namespace SmartDocs.Web.Interfaces;
 
 public interface IEmbeddingService
 {

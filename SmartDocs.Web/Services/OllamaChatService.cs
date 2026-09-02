@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using SmartDocs.Web.Interfaces;
 
 namespace SmartDocs.Web.Services;
 

@@ -1,6 +1,6 @@
 using SmartDocs.Web.Models;
 
-namespace SmartDocs.Web.Services;
+namespace SmartDocs.Web.Interfaces;
 
 public interface IDocumentService
 {

@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="SmartDocs.Web.Tests/SmartDocs.Web.Tests.csproj" />
   <Project Path="SmartDocs.Web/SmartDocs.Web.csproj" />
 </Solution>

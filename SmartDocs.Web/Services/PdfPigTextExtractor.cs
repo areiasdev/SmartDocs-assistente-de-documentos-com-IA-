@@ -1,4 +1,5 @@
 using System.Text;
+using SmartDocs.Web.Interfaces;
 using UglyToad.PdfPig;
 
 namespace SmartDocs.Web.Services;

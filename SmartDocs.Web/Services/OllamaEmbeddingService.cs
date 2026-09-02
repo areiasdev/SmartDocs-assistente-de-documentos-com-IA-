@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
+using SmartDocs.Web.Interfaces;
 
 namespace SmartDocs.Web.Services;
 

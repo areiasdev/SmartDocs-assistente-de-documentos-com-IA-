@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartDocs.Web.Components;
 using SmartDocs.Web.Components.Account;   // helpers do Identity (IdentityUserAccessor, etc.)
 using SmartDocs.Web.Data;
+using SmartDocs.Web.Interfaces;
 using SmartDocs.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,7 +40,7 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 // ---- Serviços do SmartDocs ----
 builder.Services.AddSingleton<IPdfTextExtractor, PdfPigTextExtractor>();
 builder.Services.AddSingleton<InMemoryVectorStore>();
-builder.Services.AddSingleton<IDocumentService, LocalDocumentService>();
+builder.Services.AddScoped<IDocumentService, LocalDocumentService>();
 builder.Services.AddHttpClient<IEmbeddingService, OllamaEmbeddingService>();
 builder.Services.AddHttpClient<IChatService, OllamaChatService>();
 builder.Services.AddScoped<DocumentIngestionService>();

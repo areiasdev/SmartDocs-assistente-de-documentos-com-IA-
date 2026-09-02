@@ -1,3 +1,5 @@
+using SmartDocs.Web.Interfaces;
+
 namespace SmartDocs.Web.Services;
 
 public record RagAnswer(string Text, IReadOnlyList<IndexedChunk> Sources);
