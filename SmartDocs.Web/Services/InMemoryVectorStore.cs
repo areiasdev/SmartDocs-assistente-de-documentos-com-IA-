@@ -25,4 +25,11 @@ public class InMemoryVectorStore
         }
         return dot / (MathF.Sqrt(normA) * MathF.Sqrt(normB) + 1e-8f);
     }
+    public IReadOnlyList<(IndexedChunk Chunk, float Score)> Search(float[] query, string documentId, int topK = 4)
+    => _chunks
+        .Where(c => c.DocumentId == documentId)          // ← só deste documento
+        .Select(c => (Chunk: c, Score: CosineSimilarity(query, c.Embedding)))
+        .OrderByDescending(x => x.Score)
+        .Take(topK)
+        .ToList();
 }

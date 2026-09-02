@@ -31,4 +31,19 @@ public class ConversationService
         _db.Messages.Add(new Message { ConversationId = conversationId, Role = role, Content = content });
         await _db.SaveChangesAsync(ct);
     }
+
+    public async Task<Conversation> GetOrCreateAsync(string userId, string documentId, CancellationToken ct = default)
+    {
+        var convo = await _db.Conversations
+            .Include(c => c.Messages)
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.DocumentId == documentId, ct);
+
+        if (convo is null)
+        {
+            convo = new Conversation { UserId = userId, DocumentId = documentId };
+            _db.Conversations.Add(convo);
+            await _db.SaveChangesAsync(ct);
+        }
+        return convo;
+    }
 }

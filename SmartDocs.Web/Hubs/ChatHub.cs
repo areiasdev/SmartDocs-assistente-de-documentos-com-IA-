@@ -13,18 +13,15 @@ public class ChatHub : Hub
         => (_rag, _conversations) = (rag, conversations);
 
     public async IAsyncEnumerable<string> StreamAnswer(
-        string question, string userId, [EnumeratorCancellation] CancellationToken ct)
+    string documentId, string question, string userId, [EnumeratorCancellation] CancellationToken ct)
     {
-        var convo = await _conversations.GetOrCreateAsync(userId, ct);
-        var history = convo.Messages
-            .OrderBy(m => m.CreatedAt)
-            .Select(m => new ChatMessage(m.Role, m.Content))
-            .ToList();
+        var convo = await _conversations.GetOrCreateAsync(userId, documentId, ct);
+        var history = convo.Messages.OrderBy(m => m.CreatedAt)
+            .Select(m => new ChatMessage(m.Role, m.Content)).ToList();
 
         await _conversations.AddMessageAsync(convo.Id, "user", question, ct);
-
         var full = new StringBuilder();
-        await foreach (var token in _rag.StreamAnswerAsync(question, history, ct))
+        await foreach (var token in _rag.StreamAnswerAsync(question, documentId, history, ct))
         {
             full.Append(token);
             yield return token;

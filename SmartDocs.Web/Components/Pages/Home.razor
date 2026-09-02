@@ -4,6 +4,7 @@
 @using System.Security.Claims
 @using Microsoft.AspNetCore.SignalR.Client
 @using SmartDocs.Web.Models
+@inject IJSRuntime JS
 @inject IDocumentService DocumentService
 @inject DocumentIngestionService Ingestion
 @inject ConversationService Conversations
@@ -14,7 +15,6 @@
 
 <div class="app">
     <AuthorizeView>
-        <Authorized>Olá, @context.User.Identity?.Name!</Authorized>
         <NotAuthorized>Por favor inicia sessão.</NotAuthorized>
     </AuthorizeView>
 
@@ -32,10 +32,10 @@
     <section class="card @(hasDocs ? "" : "locked")">
     <span class="step">2 · Conversar</span>
 
-    <div class="chat">
+    <div class="chat" @ref="_chatContainer">
         @foreach (var m in _messages)
         {
-            <div class="bubble @(m.Role == "user" ? "user" : "assistant")">@m.Content</div>
+            <ChatBubble Message="m" />
         }
     </div>
 
@@ -51,6 +51,8 @@
     [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
 
     private HubConnection? _hub;
+    private ElementReference _chatContainer;
+    private string? currentDocId;
     private string _userId = "";
     private List<Message> _messages = new();
     private string question = "";
@@ -61,15 +63,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var user = (await AuthState!).User;
-        _userId = user.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-        var convo = await Conversations.GetOrCreateAsync(_userId);
-        _messages = convo.Messages.OrderBy(m => m.CreatedAt).ToList();
+        _userId = (await AuthState!).User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
         _hub = new HubConnectionBuilder()
             .WithUrl(Nav.ToAbsoluteUri("/hubs/chat"))
-            .WithAutomaticReconnect()
-            .Build();
+            .WithAutomaticReconnect().Build();
         await _hub.StartAsync();
     }
 
@@ -86,8 +84,12 @@
             var doc = await DocumentService.SaveAsync(file.Name, stream);
             await Ingestion.IngestAsync(doc);
 
+            currentDocId = doc.PublicId;
             hasDocs = true;
             uploadStatus = $"✓ {doc.FileName} indexado — já podes perguntar.";
+
+            var convo = await Conversations.GetOrCreateAsync(_userId, currentDocId);
+            _messages = convo.Messages.OrderBy(m => m.CreatedAt).ToList();   // conversa deste PDF
         }
         catch (Exception ex)
         {
@@ -106,7 +108,7 @@
         var reply = new Message { Role = "assistant", Content = "" };
         _messages.Add(reply);
 
-        await foreach (var token in _hub.StreamAsync<string>("StreamAnswer", q, _userId))
+        await foreach (var token in _hub.StreamAsync<string>("StreamAnswer", currentDocId, q, _userId))
         {
             reply.Content += token;
             await InvokeAsync(StateHasChanged);

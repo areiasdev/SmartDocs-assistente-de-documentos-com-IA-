@@ -37,11 +37,12 @@ public class RagService
         return new RagAnswer(answer, sources);
     }
 
-    public async IAsyncEnumerable<string> StreamAnswerAsync(string question, IReadOnlyList<ChatMessage> history,
-    [EnumeratorCancellation] CancellationToken ct = default)
+    public async IAsyncEnumerable<string> StreamAnswerAsync(
+        string question, string documentId, IReadOnlyList<ChatMessage> history,
+        [EnumeratorCancellation] CancellationToken ct = default)
     {
         var queryVector = await _embeddings.EmbedAsync(question, ct);
-        var hits = _store.Search(queryVector, topK: 4);
+        var hits = _store.Search(queryVector, documentId, topK: 4);
         var context = string.Join("\n\n---\n\n", hits.Select(h => h.Chunk.Text));
 
         var messages = new List<ChatMessage>

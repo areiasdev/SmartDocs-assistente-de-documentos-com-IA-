@@ -1,0 +1,29 @@
+@using SmartDocs.Web.Models
+@using Markdig
+
+<div class="bubble @(Message.Role == "user" ? "user" : "assistant")">
+    @if (Message.Role == "assistant")
+    {
+        @if (string.IsNullOrEmpty(Message.Content))
+        {
+            <TypingIndicator />
+        }
+        else
+        {
+            @((MarkupString)RenderMarkdown(Message.Content))
+        }
+    }
+    else
+    {
+        @Message.Content
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Message Message { get; set; } = default!;
+
+    private static readonly MarkdownPipeline Pipeline =
+        new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+
+    private static string RenderMarkdown(string text) => Markdown.ToHtml(text ?? "", Pipeline);
+}

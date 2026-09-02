@@ -1,0 +1,8 @@
+.bubble { max-width: 80%; padding: 10px 14px; border-radius: 14px; line-height: 1.5; }
+.bubble.user { align-self: flex-end; background: #0c7c8a; color: #fff; border-bottom-right-radius: 4px; }
+.bubble.assistant { align-self: flex-start; background: #f0f4f3; color: #10201f; border-bottom-left-radius: 4px; }
+
+/* o HTML do Markdig é injetado em runtime e não leva o atributo de scope,
+   por isso preciso do ::deep para lhe chegar */
+.bubble.assistant ::deep > :first-child { margin-top: 0; }
+.bubble.assistant ::deep > :last-child  { margin-bottom: 0; }

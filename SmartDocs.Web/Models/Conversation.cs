@@ -6,6 +6,7 @@ public class Conversation
     public string UserId { get; set; } = "";        // liga ao utilizador do Identity
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public List<Message> Messages { get; set; } = new();
+    public string DocumentId { get; set; } = "";
 }
 
 public class Message
